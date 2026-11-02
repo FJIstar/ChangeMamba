@@ -1,0 +1,150 @@
+==============================================
+ChangeMamba Environment Snapshot
+==============================================
+
+Capture time:
+Mon Nov  2 10:09:31 CST 2026
+
+Project root:
+/root/autodl-tmp/projects/ChangeMamba
+
+==============================================
+SYSTEM
+==============================================
+Linux autodl-container-86a34883c1-d7f9a9e6 4.19.90-2107.6.0.0192.8.oe1.bclinux.x86_64 #1 SMP Fri Mar 24 10:04:47 CST 2023 x86_64 x86_64 x86_64 GNU/Linux
+
+OS RELEASE
+PRETTY_NAME="Ubuntu 22.04.1 LTS"
+NAME="Ubuntu"
+VERSION_ID="22.04"
+VERSION="22.04.1 LTS (Jammy Jellyfish)"
+VERSION_CODENAME=jammy
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=jammy
+
+==============================================
+CONDA
+==============================================
+CONDA_DEFAULT_ENV=changemamba
+CONDA_PREFIX=/root/miniconda3/envs/changemamba
+# conda environments:
+#
+base                     /root/miniconda3
+changemamba           *  /root/miniconda3/envs/changemamba
+mamba2                   /root/miniconda3/envs/mamba2
+
+
+==============================================
+PYTHON
+==============================================
+/root/miniconda3/envs/changemamba/bin/python
+Python 3.10.14
+
+==============================================
+GPU / NVIDIA DRIVER
+==============================================
+Mon Nov  2 10:09:32 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.82.07              Driver Version: 580.82.07      CUDA Version: 13.0     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA A800 80GB PCIe          On  |   00000000:56:00.0 Off |                  Off |
+| N/A   33C    P0             46W /  300W |       0MiB /  81920MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+
+==============================================
+CUDA TOOLKIT
+==============================================
+CUDA_HOME=/usr/local/cuda-11.8
+/usr/local/cuda-11.8/bin/nvcc
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2022 NVIDIA Corporation
+Built on Wed_Sep_21_10:33:58_PDT_2022
+Cuda compilation tools, release 11.8, V11.8.89
+Build cuda_11.8.r11.8/compiler.31833905_0
+
+CUDA headers:
+cuda_runtime.h OK
+cuda_runtime_api.h OK
+
+==============================================
+COMPILERS
+==============================================
+/usr/bin/gcc
+gcc (Ubuntu 11.3.0-1ubuntu1~22.04) 11.3.0
+/usr/bin/g++
+g++ (Ubuntu 11.3.0-1ubuntu1~22.04) 11.3.0
+
+==============================================
+CORE PYTHON PACKAGES
+==============================================
+python = 3.10.14 (main, May  6 2024, 19:42:50) [GCC 11.2.0]
+numpy = 1.26.3
+torch = 2.1.1+cu118
+torchvision = 0.16.1+cu118
+torchaudio = 2.1.1+cu118
+triton = 2.1.0
+mamba_ssm = 2.2.2
+causal_conv1d = 1.4.0
+timm = 0.4.12
+torch CUDA = 11.8
+CUDA available = True
+GPU = NVIDIA A800 80GB PCIe
+
+==============================================
+SELECTIVE SCAN
+==============================================
+selective_scan_cuda_oflex OK
+selective_scan_cuda_core OK
+selective_scan_cuda_ndstate OK
+
+==============================================
+CHANGE MAMBA SOURCE
+==============================================
+9ce9cec13f9ea14bc0ad91f071577ec9b3a97983
+9ce9cec modify hyperparameter name
+
+==============================================
+PIP CHECK
+==============================================
+ninja 1.11.1.1 is not supported on this platform
+[WARNING] pip check returned warnings/errors or timed out
+
+==============================================
+IMPORTANT PACKAGE VERSIONS
+==============================================
+causal-conv1d      1.4.0
+chardet            5.2.0
+fvcore             0.1.5.post20221221
+mamba-ssm          2.2.2
+numpy              1.26.3
+pytest             9.2.0
+submitit           1.5.4
+tensorboardX       2.6.5
+timm               0.4.12
+torch              2.1.1+cu118
+torchaudio         2.1.1+cu118
+torchvision        0.16.1+cu118
+triton             2.1.0
+yacs               0.1.8
+
+==============================================
+END OF SNAPSHOT
+==============================================

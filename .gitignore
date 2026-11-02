@@ -58,3 +58,4 @@ saved_models/
 changedetection/*.o*
 slurm-*.out
 core-*
+reproducibility/conda_explicit.txt
