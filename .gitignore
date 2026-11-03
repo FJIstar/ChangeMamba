@@ -59,3 +59,23 @@ changedetection/*.o*
 slurm-*.out
 core-*
 reproducibility/conda_explicit.txt
+
+# ===== Local reproduction assets =====
+*.pth
+*.pt
+*.ckpt
+*.tar
+*.tar.gz
+*.zip
+
+data/
+datasets/
+checkpoints/
+results/
+logs/
+
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+*.log
+.DS_Store

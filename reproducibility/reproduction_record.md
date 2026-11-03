@@ -1,28 +1,28 @@
 # ChangeMamba Reproduction Record
 
-This document records the formal reproduction process and experimental
-results for ChangeMamba.
+This document records the validated ChangeMamba reproduction workflow,
+environment, dataset protocol, checkpoint inference, and training results.
 
-The goal is to keep the reproduction traceable, comparable, and reusable
-for later CDMamba, CD-Lamba, SChanger, and the proposed PCRM-DAIM-CSM model.
+The purpose is to keep the reproduction traceable and reusable for later
+baseline comparison and subsequent binary change detection research.
 
 ---
 
-## 1. Paper Information
+## 1. Project Information
 
 Paper:
 
-    ChangeMamba
+    ChangeMamba: Remote Sensing Change Detection With Spatio-Temporal State Space Model
 
 Task:
 
-    Remote Sensing Binary Change Detection
+    Remote Sensing Binary Change Detection (BCD)
 
 Upstream repository:
 
     https://github.com/ChenHongruixuan/ChangeMamba
 
-Validated upstream commit:
+Windows-side source/data-protocol audit commit:
 
     9ce9cec13f9ea14bc0ad91f071577ec9b3a97983
 
@@ -30,13 +30,23 @@ Commit message:
 
     modify hyperparameter name
 
-Repository checkout type:
+Server reproduction branch:
 
-    shallow clone (--depth 1)
+    reproduction/a800-cu118
 
-Reproduction date:
+Environment/reproduction branch reference commit:
 
-    2026-11-02
+    9ec6f6c8da5071c03d84e1af70e6e9d56007b55d
+
+Important:
+
+The Windows-side upstream commit and the server reproduction branch serve
+different purposes.
+
+The upstream commit was used to audit the released BCD source/data protocol.
+
+The reproduction/a800-cu118 branch records the validated A800 CUDA 11.8
+reproduction environment and experiment documentation.
 
 ---
 
@@ -54,38 +64,32 @@ GPU memory:
 
     81920 MiB
 
+GPU compute capability:
+
+    8.0
+
 Driver:
 
     580.82.07
 
-nvidia-smi driver CUDA capability:
+nvidia-smi reported CUDA capability:
 
     CUDA 13.0
 
+MIG:
+
+    Disabled
+
 Important:
 
-The CUDA 13.0 value above represents driver capability.
-The actual CUDA Toolkit used for ChangeMamba is CUDA 11.8.
+The CUDA 13.0 value reported by nvidia-smi represents the maximum CUDA
+version supported by the NVIDIA driver.
 
-CPU:
-
-    TBD
-
-System RAM:
-
-    TBD
-
-Disk configuration:
-
-    TBD
+The actual ChangeMamba runtime and compilation environment uses CUDA 11.8.
 
 ---
 
 ## 3. Software Environment
-
-Operating system:
-
-    Ubuntu 22.04 based AutoDL container
 
 Conda environment:
 
@@ -93,15 +97,15 @@ Conda environment:
 
 Python:
 
-    3.10.x
-
-NumPy:
-
-    1.26.3
+    3.10.14
 
 PyTorch:
 
     2.1.1+cu118
+
+PyTorch CUDA runtime:
+
+    11.8
 
 torchvision:
 
@@ -111,9 +115,25 @@ torchaudio:
 
     2.1.1+cu118
 
+NVCC:
+
+    CUDA 11.8
+
+NumPy:
+
+    1.26.3
+
 Triton:
 
     2.1.0
+
+timm:
+
+    0.4.12
+
+einops:
+
+    0.8.0
 
 mamba-ssm:
 
@@ -123,539 +143,480 @@ causal-conv1d:
 
     1.4.0
 
-timm:
+Additional runtime dependencies added during formal BCD reproduction:
 
-    0.4.12
+    imageio 2.38.0
+    scipy   1.11.4
 
-CUDA Toolkit:
-
-    11.8
-
-CUDA_HOME:
-
-    /usr/local/cuda-11.8
-
-nvcc:
-
-    11.8.89
-
-gcc:
-
-    11.3.0
+The additional packages were installed incrementally without changing the
+validated PyTorch/CUDA/Mamba stack.
 
 ---
 
-## 4. selective_scan Validation
+## 4. Mamba / CUDA Validation
 
-The following ChangeMamba CUDA extensions were compiled and verified:
+Validated:
+
+    torch.cuda.is_available() = True
+    GPU = NVIDIA A800 80GB PCIe
+    selective_scan_fn = OK
+
+Validated ChangeMamba selective-scan extensions:
 
     selective_scan_cuda_oflex   OK
     selective_scan_cuda_core    OK
     selective_scan_cuda_ndstate OK
 
-Known environment fixes are documented in:
+Known environment fixes and recovery procedures are documented in:
 
     reproducibility/TROUBLESHOOTING.md
 
+Dependency policy:
+
+Do not blindly run:
+
+    pip install -r requirements.txt
+
+Missing auxiliary dependencies should be installed incrementally and the
+core environment should be revalidated afterwards.
+
 ---
 
-## 5. Dataset
+## 5. Server Directory Layout
 
-Primary first reproduction dataset:
+Project source:
 
-    WHU-CD
+    /root/autodl-tmp/projects/ChangeMamba
 
-Dataset root:
+BCD datasets:
 
-    TBD
+    /root/autodl-tmp/data/ChangeMamba
 
-Dataset organization:
+Checkpoints:
 
-    TBD
+    /root/autodl-tmp/checkpoints/ChangeMamba
 
-Train split:
+Results:
 
-    TBD
+    /root/autodl-tmp/results/ChangeMamba
 
-Validation split:
+Logs:
 
-    TBD
+    /root/autodl-tmp/logs/ChangeMamba
 
-Test split:
+---
 
-    TBD
+## 6. Released BCD Data Protocol
+
+Source inspection confirmed that the released BCD implementation expects:
+
+    dataset/
+    ├── train/
+    │   ├── T1/
+    │   ├── T2/
+    │   └── GT/
+    ├── test/
+    │   ├── T1/
+    │   ├── T2/
+    │   └── GT/
+    ├── train_set.txt
+    └── test_set.txt
+
+The implementation does not directly support:
+
+    A / B / label
+
+List files are mandatory.
+
+Each line must contain the filename including its extension, for example:
+
+    00000.png
+
+The released BCD loader reads the GT and applies:
+
+    label = loader(label_path) / 255
+
+The task code later converts labels to integer class values.
+
+Therefore binary GT masks must use:
+
+    0 / 255
+
+rather than:
+
+    0 / 1
+
+---
+
+## 7. SYSU Dataset
+
+Original validated split:
+
+    train = 12000
+    val   = 4000
+    test  = 4000
 
 Image size:
 
-    TBD
+    256 x 256
 
-Number of train samples:
+Original structure:
 
-    TBD
+    A / B / label
 
-Number of validation samples:
+ChangeMamba structure:
 
-    TBD
+    T1 / T2 / GT
 
-Number of test samples:
+GT encoding:
 
-    TBD
+    0 / 255
 
-Ground-truth encoding:
+Official-reproduction split used:
 
-    TBD
+    train = 12000
+    test  = 4000
 
-Dataset preprocessing:
+Server-side validation:
 
-    TBD
+    T1/T2/GT counts match
+    list counts match
+    file pairing validated
 
-Dataset audit completed:
+Status:
 
-    NO
-
-Notes:
-
-    The first goal is to verify the exact dataset structure and split before
-    running official checkpoint inference or training.
+    PASS
 
 ---
 
-## 6. Model
+## 8. WHU-CD Dataset
 
-Model family:
+Validated data version:
 
-    MambaBCD
+    256 x 256 cropped WHU-CD
 
-Initial reproduction model:
+Split:
 
-    MambaBCD_Tiny
+    train = 4536
+    val   = 504
+    test  = 2760
 
-Model config:
+Original GT encoding:
 
-    TBD
+    0 / 1
 
-Encoder config:
+Because the released ChangeMamba BCD loader divides GT values by 255,
+0/1 masks cannot be used directly.
 
-    TBD
+GT conversion:
 
-Input crop size:
+    0 -> 0
+    1 -> 255
 
-    256 x 256 expected, to be verified against the current official code
+Converted GT files used in official reproduction:
 
-Batch size:
+    7296
 
-    TBD
+Final GT format:
 
-Number of parameters:
+    single-channel uint8 PNG
+    values strictly in {0,255}
 
-    TBD
+Original files were not modified.
 
-FLOPs:
+Status:
 
-    TBD
-
----
-
-## 7. Official Checkpoint
-
-Official checkpoint source:
-
-    TBD
-
-Checkpoint filename:
-
-    TBD
-
-Checkpoint SHA-256:
-
-    TBD
-
-Checkpoint model type:
-
-    MambaBCD_Tiny
-
-Checkpoint loading argument:
-
-    --model_checkpoint_path
-
-Important:
-
-Do not confuse full-model checkpoint loading with encoder-only pretrained
-weights.
-
-The current official code distinguishes at least:
-
-    encoder_pretrained_path
-    model_checkpoint_path
-    resume_training_path
-
-Exact command will be recorded after verification against the current
-official repository.
+    PASS
 
 ---
 
-## 8. Inference Reproduction
+## 9. LEVIR-CD+ Dataset
 
-Inference command:
+Validated original LEVIR-CD+:
 
-    TBD
+    train pairs = 637
+    test pairs  = 348
 
-Dataset:
+Original image size:
 
-    WHU-CD
+    1024 x 1024
+
+Tiling:
+
+    tile size = 256
+    stride    = 256
+    overlap   = 0
+
+Each source pair produces:
+
+    4 x 4 = 16 patches
+
+Final patch counts:
+
+    train = 10192
+    test  = 5568
+
+A/B/GT use identical crop coordinates.
+
+32 original train GT files contained non-binary values:
+
+    156
+    254
+
+GT normalization:
+
+    gt == 0 -> 0
+    gt > 0  -> 255
+
+Final GT format:
+
+    single-channel uint8 PNG
+    values strictly in {0,255}
+
+Excluded metadata:
+
+    .DS_Store
+    __MACOSX
+    ._*
+
+Original files were not modified.
+
+Status:
+
+    PASS
+
+---
+
+## 10. Important Evaluation Protocol Note
+
+The released BCD implementation creates a loader named:
+
+    Validation
+
+However, source inspection confirmed that this loader actually uses:
+
+    test_dataset_path
+    test_data_name_list
+
+The training process evaluates this test split every 500 iterations.
+
+The released implementation also uses the evaluation result for
+best-checkpoint selection.
+
+Therefore:
+
+    released-code reproduction = test split used during model selection
+
+This behavior is retained only for strict reproduction of the released code.
+
+Future research experiments must use an independent:
+
+    train / validation / test
+
+protocol.
+
+---
+
+## 11. Official SYSU MambaBCD-Tiny Checkpoint Inference
 
 Model:
 
-    MambaBCD_Tiny
+    MambaBCD-Tiny
 
-Checkpoint:
+Official checkpoint:
 
-    TBD
+    MambaBCD_Tiny_SYSU_F1_0.8316.pth
 
-Input size:
+Checkpoint MD5:
 
-    TBD
+    95a894d72fda983bf12de4d090308a7c
 
-Batch size:
+Checkpoint type:
 
-    TBD
+    collections.OrderedDict
+    model state_dict only
 
-Inference date:
+Checkpoint loading:
 
-    TBD
+    matched         514
+    missing         0
+    unexpected      0
+    mismatched      0
+    legacy_remapped 304
 
-Peak GPU memory:
+Inference results:
 
-    TBD
+    Recall     0.7976
+    Precision  0.8685
+    OA         0.9238
+    F1         0.8316
+    IoU        0.7117
+    Kappa      0.7824
 
-Inference time:
-
-    TBD
-
----
-
-## 9. Training Configuration
-
-Training command:
-
-    TBD
-
-Optimizer:
-
-    TBD
-
-Learning rate:
-
-    TBD
-
-Weight decay:
-
-    TBD
-
-Scheduler:
-
-    TBD
-
-Batch size:
-
-    TBD
-
-Crop size:
-
-    TBD
-
-Iterations:
-
-    TBD
-
-Epochs:
-
-    TBD
-
-Loss:
-
-    TBD
-
-AMP:
-
-    TBD
-
-Random seed:
-
-    TBD
-
-Number of workers:
-
-    TBD
-
-Checkpoint frequency:
-
-    TBD
-
-Validation frequency:
-
-    TBD
-
----
-
-## 10. Official Reported Results
-
-Dataset:
-
-    WHU-CD
-
-Model:
-
-    MambaBCD_Tiny
-
-Official F1:
-
-    TBD
-
-Official IoU:
-
-    TBD
-
-Official Precision:
-
-    TBD
-
-Official Recall:
-
-    TBD
-
-Source of official result:
-
-    TBD
-
----
-
-## 11. Historical Local Result
-
-A previous successful ChangeMamba reproduction had approximately:
-
-    Dataset: WHU-CD
-    Model: MambaBCD_Tiny
-    F1: approximately 0.9409
-
-Important:
-
-This value is retained only as a historical calibration reference.
-
-The exact previous code version, data split, checkpoint, and training
-conditions may differ from the current 2026 reorganized official repository.
-
-Therefore, the current reproduction should not assume that the exact same
-metric must be obtained.
-
----
-
-## 12. Current Reproduced Results
-
-Dataset:
-
-    WHU-CD
-
-Model:
-
-    MambaBCD_Tiny
-
-F1:
-
-    TBD
-
-IoU:
-
-    TBD
-
-Precision:
-
-    TBD
-
-Recall:
-
-    TBD
-
-Overall Accuracy:
-
-    TBD
-
-Other metrics:
-
-    TBD
-
----
-
-## 13. Efficiency Results
-
-Parameters:
-
-    TBD
-
-FLOPs:
-
-    TBD
-
-Peak GPU memory during inference:
-
-    TBD
-
-Peak GPU memory during training:
-
-    TBD
-
-Average inference time per image pair:
-
-    TBD
-
-Training time:
-
-    TBD
-
-GPU utilization observations:
-
-    TBD
-
----
-
-## 14. Reproduction Comparison
-
-Official F1:
-
-    TBD
-
-Historical local F1:
-
-    approximately 0.9409
-
-Current reproduced F1:
-
-    TBD
-
-Absolute difference from official:
-
-    TBD
-
-Absolute difference from historical result:
-
-    TBD
-
-Possible reasons for differences:
-
-    TBD
-
----
-
-## 15. Problems Encountered
-
-Environment-level problems:
-
-    See reproducibility/TROUBLESHOOTING.md
-
-Dataset-level problems:
-
-    TBD
-
-Checkpoint-level problems:
-
-    TBD
-
-Code-level problems:
-
-    TBD
-
-Training-level problems:
-
-    TBD
-
----
-
-## 16. Reproduction Status
-
-Environment:
+Result:
 
     PASS
 
-GPU:
+The reproduced F1 exactly matches the checkpoint filename:
 
-    PASS
+    F1 = 0.8316
 
-CUDA:
+This validates the complete inference chain:
 
-    PASS
-
-PyTorch:
-
-    PASS
-
-Mamba:
-
-    PASS
-
-selective_scan:
-
-    PASS
-
-Project import:
-
-    NOT TESTED YET
-
-Dataset audit:
-
-    NOT STARTED
-
-Official checkpoint inference:
-
-    NOT STARTED
-
-Short training test:
-
-    NOT STARTED
-
-Full training reproduction:
-
-    NOT STARTED
-
-Metric comparison:
-
-    NOT STARTED
-
----
-
-## 17. Next Actions
-
-The next actions are:
-
-    1. Verify environment again after deactivate/reactivate.
-    2. Verify ChangeMamba project-level imports.
-    3. Audit WHU-CD directory organization.
-    4. Verify WHU-CD split files.
-    5. Obtain and hash the official MambaBCD_Tiny checkpoint.
-    6. Run official checkpoint inference.
-    7. Record F1, IoU, Precision, Recall, memory, and runtime.
-    8. Run a short training sanity check.
-    9. Run formal baseline reproduction only after the above steps pass.
-    10. Use the same recording structure for CDMamba, CD-Lamba, SChanger,
-        and the proposed PCRM-DAIM-CSM model.
-
----
-
-## 18. Reproducibility Principle
-
-Do not modify multiple variables at the same time.
-
-For each reproduction stage, record:
-
-    code commit
     environment
-    dataset split
-    checkpoint
-    config
-    command
-    random seed
-    metrics
-    runtime
-    memory
+    -> ChangeMamba source
+    -> Mamba/selective scan
+    -> official checkpoint
+    -> SYSU dataset
+    -> evaluation
 
-Only after the official baseline is verified should architecture-level
-modifications be introduced.
+---
+
+## 12. SYSU MambaBCD-Small Training
+
+Training follows the released README recipe.
+
+Model:
+
+    MambaBCD-Small
+
+Dataset:
+
+    SYSU
+
+Training configuration:
+
+    batch size     16
+    crop size      256
+    max iterations 20000
+    learning rate  1e-4
+    weight decay   5e-3
+    optimizer      AdamW
+    eval interval  500
+
+Config:
+
+    changedetection/configs/vssm1/vssm_small_224.yaml
+
+Encoder initialization:
+
+    VMamba-Small ImageNet pretrained checkpoint
+
+Pretrained encoder load:
+
+    matched     398
+    missing     8
+    unexpected  4
+    mismatched  0
+
+Missing parameters:
+
+    outnorm0.weight
+    outnorm0.bias
+    outnorm1.weight
+    outnorm1.bias
+    outnorm2.weight
+    outnorm2.bias
+    outnorm3.weight
+    outnorm3.bias
+
+Unexpected parameters belong to the ImageNet classification head:
+
+    classifier.norm.weight
+    classifier.norm.bias
+    classifier.head.weight
+    classifier.head.bias
+
+No parameter shape mismatch was observed.
+
+---
+
+## 13. SYSU MambaBCD-Small Training Results
+
+First evaluation at iteration 500:
+
+    Recall     0.7514
+    Precision  0.8466
+    OA         0.9093
+    F1         0.7961
+    IoU        0.6613
+    Kappa      0.7380
+
+Final evaluation at iteration 20000:
+
+    Recall     0.7679
+    Precision  0.8900
+    OA         0.9229
+    F1         0.8245
+    IoU        0.7014
+    Kappa      0.7754
+
+Best checkpoint:
+
+    iteration = 2500
+
+Selection metric:
+
+    Kappa
+
+Best checkpoint metrics:
+
+    Recall     0.8075
+    Precision  0.8648
+    OA         0.9248
+    F1         0.8352
+    IoU        0.7170
+    Kappa      0.7866
+
+Training status:
+
+    COMPLETED
+
+The best checkpoint outperformed the final 20000-iteration model in F1,
+IoU, and Kappa.
+
+The late-stage model showed higher precision but lower recall, indicating
+that the model became more conservative as training continued.
+
+---
+
+## 14. Current Reproduction Status
+
+Validated:
+
+    [OK] A800 CUDA 11.8 environment
+    [OK] PyTorch / Mamba stack
+    [OK] selective scan
+    [OK] SYSU dataset
+    [OK] WHU-CD dataset
+    [OK] LEVIR-CD+ dataset
+    [OK] official SYSU Tiny checkpoint inference
+    [OK] SYSU Small training
+    [OK] periodic evaluation
+    [OK] best-checkpoint selection
+    [OK] checkpoint saving
+
+Pending:
+
+    [ ] independent inference verification of SYSU Small best_model.pth
+    [ ] official SYSU MambaBCD-Small checkpoint comparison
+    [ ] WHU-CD official checkpoint inference
+    [ ] WHU-CD training reproduction
+    [ ] LEVIR-CD+ official checkpoint inference
+    [ ] LEVIR-CD+ training reproduction
+
+---
+
+## 15. Next Actions
+
+1. Independently infer SYSU using the locally trained Small best_model.pth.
+2. Confirm that independent inference reproduces approximately:
+
+       F1    0.8352
+       Kappa 0.7866
+
+3. Download the official SYSU MambaBCD-Small checkpoint.
+4. Run the same inference protocol with the official Small checkpoint.
+5. Compare official Small and reproduced Small under the same dataset and
+   evaluation pipeline.
+6. Continue with WHU-CD after SYSU reproduction is fully closed.
