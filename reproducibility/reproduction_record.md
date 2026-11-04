@@ -620,3 +620,65 @@ Pending:
 5. Compare official Small and reproduced Small under the same dataset and
    evaluation pipeline.
 6. Continue with WHU-CD after SYSU reproduction is fully closed.
+
+---
+
+## 16. SYSU MambaBCD-Small Independent Inference Verification
+
+Verification date:
+
+    2026-11-03
+
+Model:
+
+    MambaBCD-Small
+
+Checkpoint source:
+
+    Locally trained best_model.pth
+    Best iteration: 2500
+
+Inference input:
+
+    SYSU official-reproduction test split
+    4000 image pairs
+
+Independent inference results:
+
+    Recall     0.8075
+    Precision  0.8648
+    OA         0.9248
+    F1         0.8352
+    IoU        0.7170
+    Kappa      0.7866
+
+Comparison with training best@2500:
+
+    All six metrics match to four decimal places.
+
+Inference completion:
+
+    Inference stage is done!
+
+Status:
+
+    PASS
+
+Conclusion:
+
+    The locally trained best checkpoint can be loaded independently
+    and reproduces its recorded evaluation metrics.
+
+Limitations:
+
+    The released training implementation uses the test split for
+    periodic evaluation and best-checkpoint selection.
+
+    This verification confirms training/inference consistency.
+    It does not establish independent test-set performance or
+    equivalence to the official MambaBCD-Small checkpoint.
+
+Next step:
+
+    Compare against the official SYSU MambaBCD-Small checkpoint
+    under the same inference configuration and dataset protocol.
