@@ -682,3 +682,84 @@ Next step:
 
     Compare against the official SYSU MambaBCD-Small checkpoint
     under the same inference configuration and dataset protocol.
+
+---
+
+## 17. Official SYSU MambaBCD-Small Checkpoint Comparison
+
+Date:
+
+    2026-11-05
+
+Official checkpoint:
+
+    MambaBCD_Small_SYSU_F1_0.8336.pth
+
+Official checkpoint MD5:
+
+    6b2d539e6cc7a16132b262cdefbed185
+
+Checkpoint loading:
+
+    matched: 712
+    missing: 0
+    unexpected: 0
+    mismatched: 0
+    legacy_remapped: 304
+
+Inference protocol:
+
+    Dataset: SYSU
+    Test pairs: 4000
+    Model: MambaBCD-Small
+    Config: vssm_small_224.yaml
+    Inference script: infer_MambaBCD.py
+
+### Official checkpoint results
+
+    Recall     0.8074
+    Precision  0.8614
+    OA         0.9240
+    F1         0.8336
+    IoU        0.7146
+    Kappa      0.7843
+
+### Local best checkpoint results
+
+    Best iteration: 2500
+
+    Recall     0.8075
+    Precision  0.8648
+    OA         0.9248
+    F1         0.8352
+    IoU        0.7170
+    Kappa      0.7866
+
+### Metric differences (local - official)
+
+    Recall    +0.0001
+    Precision +0.0034
+    OA        +0.0008
+    F1        +0.0016
+    IoU       +0.0024
+    Kappa     +0.0023
+
+Status:
+
+    PASS - Official checkpoint independently loaded and evaluated.
+
+Interpretation:
+
+    The local SYSU MambaBCD-Small checkpoint achieves metrics
+    close to the official checkpoint under the same inference
+    code, configuration, and test split.
+
+Limitations:
+
+    The local training run used the test split for periodic
+    evaluation and best-checkpoint selection, following the
+    released implementation.
+
+    The observed metric differences do not establish statistical
+    significance or methodological superiority.
+
